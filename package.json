@@ -9,5 +9,7 @@
   "author": "csi.bruce@gmail.com",
   "license": "ISC",
   "dependencies": {
+    "chalk": "^2.3.0",
+    "lodash": "^4.17.4"
   }
 }

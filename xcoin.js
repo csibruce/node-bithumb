@@ -1,4 +1,5 @@
 const request = require('request')
+const chalk = require('chalk');
 // const request = require('superagent');
 
 function XCoinAPI(api_key, api_secret){
@@ -39,13 +40,13 @@ XCoinAPI.prototype.request = function(strHost, strMethod, rgParams, httpHeaders)
   	},
   	(error, response, rgResult) => {
   		if(error) {
+        console.log(chalk.red('REQUEST ERROR!!'));
   			console.log(error);
         reject(error);
   			return;
   		}
 
   		var rgResultDecode = JSON.parse(rgResult);
-      console.log(rgResult);
       resolve(rgResultDecode)
   	});
   })
