@@ -31,7 +31,37 @@ const BithumbApi = new XCoinAPI(Credential.api_key, Credential.api_secret)
 // BithumbApi.call('/info/user_transactions', { currency: 'BTC' })
 //   .then((res) => console.log(res));
 
-// 주문
+
+
+const getMyBTCBalance = () => {
+  BithumbApi.call('/info/balance', { currency: 'BTC' }) // bithumb 거래소 회원 지갑 정보
+    .then(res => {
+      if (res.status !== '0000') return;
+
+      const {
+        total_krw,
+        in_use_krw,
+        available_krw,
+        misu_krw,
+        total_btc,
+        in_use_btc,
+        available_btc,
+        misu_btc,
+        xcoin_last
+      } = res.data;
+
+      console.log(chalk.yellow.bold(`[ 비트코인 잔액 ]`));
+      console.log(chalk.yellow(`----------------------------------`));
+      console.log(chalk.yellow(`총 원화            : ${total_krw}원`));
+      console.log(chalk.yellow(`사용 중            : ${in_use_krw}원`));
+      console.log(chalk.yellow(`구매가능한 원화    : ${available_krw}원`));
+      console.log(chalk.yellow(`구매가능한 비트코인: ${available_btc}`));
+      console.log(chalk.yellow(`마지막 거래채결금액: ${xcoin_last}원`));
+      console.log(chalk.yellow(`----------------------------------`));
+    });
+}
+
+// 비트코인 주문
 const orderBitcoin = (units, price) => {
   console.log(chalk.yellow(`[ 비트코인 주문 ] ${new Date()}`));
   console.log(chalk.yellow(`주문가격: ${price}`));
@@ -55,7 +85,9 @@ const orderBitcoin = (units, price) => {
     });
 }
 
-orderBitcoin(0.037, 8965000);
+
+getMyBTCBalance();
+// orderBitcoin(0.037, 8965000);
 
 // BithumbApi.call('/info/orders', {
 //   order_id: '1511365777384',
