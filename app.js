@@ -16,25 +16,8 @@ const Credential = require('./credential.js');
 const XCoinAPI = require('./xcoin.js');
 const BithumbApi = new XCoinAPI(Credential.api_key, Credential.api_secret)
 
-
-// info/ticker
-
-// BithumbApi.call('/info/account', {
-//   order_currency:'BTC',
-//   payment_currency:'KRW'
-// });
-// BithumbApi.call('/info/balance'); // bithumb 거래소 회원 지갑 정보
-// BithumbApi.call('/info/ticker');  // 회원 마지막 거래 정보
-
-// 회원 거래 내역
-// search >> 0 : 전체, 1 : 구매완료, 2 : 판매완료, 3 : 출금중, 4 : 입금, 5 : 출금, 9 : KRW입금중
-// BithumbApi.call('/info/user_transactions', { currency: 'BTC' })
-//   .then((res) => console.log(res));
-
-
-
-const getMyBTCBalance = () => {
-  BithumbApi.call('/info/balance', { currency: 'BTC' }) // bithumb 거래소 회원 지갑 정보
+const getMyBTCBalance = async () => {
+  return await BithumbApi.call('/info/balance', { currency: 'BTC' }) // bithumb 거래소 회원 지갑 정보
     .then(res => {
       if (res.status !== '0000') return;
 
@@ -58,10 +41,10 @@ const getMyBTCBalance = () => {
       console.log(chalk.yellow(`구매가능한 비트코인: ${available_btc}`));
       console.log(chalk.yellow(`마지막 거래채결금액: ${xcoin_last}원`));
       console.log(chalk.yellow(`----------------------------------`));
+      return { available_btc, xcoin_last };
     });
 }
 
-// 비트코인 주문
 const orderBitcoin = (units, price) => {
   console.log(chalk.yellow(`[ 비트코인 주문 ] ${new Date()}`));
   console.log(chalk.yellow(`주문가격: ${price}`));
@@ -81,28 +64,16 @@ const orderBitcoin = (units, price) => {
         console.log(chalk.red(`${message}(${status})`));
         return;
       }
+      // TODO 주문완료된 order_id 저장하기 -> 주문체결여부 수시로 확인해야함.
       console.log(chalk.yellow.bold(`주문이 완료되었습니다. order_id: ${order_id}`));
     });
 }
 
+getMyBTCBalance()
+  .then(async res => {
+    const { available_btc, xcoin_last } = res;
 
-getMyBTCBalance();
-// orderBitcoin(0.037, 8965000);
-
-// BithumbApi.call('/info/orders', {
-//   order_id: '1511365777384',
-//   type: 'bid',
-//   count: '100',
-//   // after: new Date('2017-09-01').getTime().toString(),
-//   after: '1511323777608',
-//   currency: 'XRP'
-// })
-//   .then(res => console.log(chalk.red('adsf')));
-
-// 중복api호출...
-// Promise.all([order(), order(), order()])
-//   .then(() => console.log('======================='));
-
-// 주문 취소
-// BithumbApi.call('/trade/cancel')
-//   .then(res => console.log(res))
+    // TODO 코인 수량은 소수점 4째짜리 까지만 입력가능합니다.(5600)
+    // TODO 최소주문수량이상으로 주문하게 할 것. (각 코인의 최소주문수량 알아보기)
+    await orderBitcoin(available_btc, xcoin_last);
+  });
